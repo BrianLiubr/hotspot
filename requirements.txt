@@ -14,3 +14,4 @@ trafilatura
 rapidfuzz
 apscheduler
 python-dateutil
+pytest

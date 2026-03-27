@@ -1,28 +1,31 @@
-from datetime import datetime
-
 from fastapi import APIRouter
+
+from app.services.refresh.pipeline import run_refresh
+from app.services.source_registry import DEFAULT_SOURCES
 
 router = APIRouter()
 
 
 @router.get("/jobs")
-def list_jobs():
+async def list_jobs():
+    preview = await run_refresh(trigger_type="preview")
     return {
         "items": [
             {
                 "id": 1,
-                "trigger_type": "manual",
-                "status": "pending",
-                "started_at": datetime.utcnow().isoformat(),
-                "message": "等待接入真实刷新任务",
+                "trigger_type": preview["trigger_type"],
+                "status": preview["status"],
+                "started_at": preview["started_at"],
+                "message": preview["message"],
             }
         ]
     }
 
 
 @router.post("/refresh")
-def trigger_refresh():
-    return {"ok": True, "message": "手动刷新入口已预留，后续接真实 pipeline"}
+async def trigger_refresh():
+    preview = await run_refresh(trigger_type="manual")
+    return {"ok": True, "message": preview["message"], "count": len(preview["items"])}
 
 
 @router.post("/rerank")
@@ -32,4 +35,4 @@ def rerank():
 
 @router.get("/sources")
 def list_sources():
-    return {"items": []}
+    return {"items": DEFAULT_SOURCES}
