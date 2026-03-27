@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="hero">
+  <h2>{{ page_title }}</h2>
+  <p>上次刷新：{{ last_refresh }}</p>
+</section>
+
+<section class="card-list">
+  {% for item in items %}
+  <article class="card">
+    <div class="meta">
+      <span class="badge">{{ item.category }}</span>
+      <span>{{ item.source }}</span>
+      <span>{{ item.published_at }}</span>
+    </div>
+    <h3><a href="/events/{{ item.id }}">{{ item.title }}</a></h3>
+    <p>{{ item.summary }}</p>
+    <div class="meta">
+      <span>热度：{{ item.score }}</span>
+      <span>相关报道：{{ item.related_count }}</span>
+    </div>
+  </article>
+  {% endfor %}
+</section>
+{% endblock %}

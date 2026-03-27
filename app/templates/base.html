@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{{ page_title }} - Hotspot Hub</title>
+  <link rel="stylesheet" href="/static/css/app.css" />
+</head>
+<body>
+  <header class="site-header">
+    <div class="container">
+      <h1><a href="/">Hotspot Hub</a></h1>
+      <nav>
+        <a href="/">总榜</a>
+        <a href="/latest">最新</a>
+        <a href="/category/ai">AI</a>
+        <a href="/category/finance">财经</a>
+        <a href="/category/society">社会</a>
+        <a href="/admin">管理</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+    {% block content %}{% endblock %}
+  </main>
+</body>
+</html>

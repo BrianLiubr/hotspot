@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block content %}
+{% if item %}
+<article class="card">
+  <div class="meta">
+    <span class="badge">{{ item.category }}</span>
+    <span>{{ item.source }}</span>
+    <span>{{ item.published_at }}</span>
+  </div>
+  <h2>{{ item.title }}</h2>
+  <p>{{ item.summary }}</p>
+  <div class="meta">
+    <span>热度：{{ item.score }}</span>
+    <span>相关报道：{{ item.related_count }}</span>
+  </div>
+</article>
+{% else %}
+<p>没有找到这个事件。</p>
+{% endif %}
+{% endblock %}

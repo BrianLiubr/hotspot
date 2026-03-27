@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="admin-header">
+  <h2>{{ page_title }}</h2>
+  <div class="actions">
+    <button id="refresh-btn">立即刷新</button>
+    <button id="rerank-btn">重算榜单</button>
+  </div>
+</section>
+
+<section class="card">
+  <h3>最近任务</h3>
+  <ul>
+    {% for job in jobs %}
+    <li>#{{ job.id }} · {{ job.trigger_type }} · {{ job.status }} · {{ job.message }}</li>
+    {% endfor %}
+  </ul>
+</section>
+
+<script src="/static/js/admin.js"></script>
+{% endblock %}

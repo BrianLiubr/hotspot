@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>{{ page_title }}</h2>
+<div class="card-list">
+  {% for item in items %}
+  <article class="card">
+    <div class="meta">
+      <span class="badge">{{ item.category }}</span>
+      <span>{{ item.source }}</span>
+      <span>{{ item.published_at }}</span>
+    </div>
+    <h3><a href="/events/{{ item.id }}">{{ item.title }}</a></h3>
+    <p>{{ item.summary }}</p>
+  </article>
+  {% else %}
+  <p>这个分类暂时还没有内容。</p>
+  {% endfor %}
+</div>
+{% endblock %}
