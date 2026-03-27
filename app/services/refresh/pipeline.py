@@ -3,56 +3,59 @@ from __future__ import annotations
 from datetime import datetime
 from typing import Any
 
-from app.services.classify.keyword_classifier import classify_text
+from sqlalchemy.orm import Session
+
+from app.models.source import Source
 from app.services.fetchers.rss_fetcher import RSSFetcher
-from app.services.parser.normalizer import normalize_item
-from app.services.source_registry import DEFAULT_SOURCES
+from app.services.storage import create_refresh_job, seed_sources, store_items
 
 
-async def collect_preview_items(limit_per_source: int = 5) -> list[dict[str, Any]]:
+async def collect_source_items(source: Source | dict[str, Any], limit_per_source: int = 10) -> list[dict[str, Any]]:
+    source_payload = {
+        "name": source.name if hasattr(source, "name") else source["name"],
+        "url": source.url if hasattr(source, "url") else source["url"],
+        "max_items": limit_per_source,
+    }
     fetcher = RSSFetcher()
-    collected: list[dict[str, Any]] = []
-
-    for source in DEFAULT_SOURCES:
-        source_payload = {**source, "max_items": limit_per_source}
-        try:
-            raw_items = await fetcher.fetch(source_payload)
-        except Exception as exc:  # noqa: BLE001
-            collected.append(
-                {
-                    "title": f"抓取失败：{source['name']}",
-                    "summary": str(exc),
-                    "url": source["url"],
-                    "category": source["category_default"],
-                    "source": source["name"],
-                    "published_at": None,
-                    "score": 0,
-                    "related_count": 0,
-                    "error": True,
-                }
-            )
-            continue
-
-        for item in raw_items:
-            normalized = normalize_item(item)
-            category, scores = classify_text(normalized["title"], normalized.get("summary", ""))
-            normalized["category"] = category or source["category_default"]
-            normalized["source"] = source["name"]
-            normalized["score"] = sum(scores.values()) + 1
-            normalized["related_count"] = 1
-            collected.append(normalized)
-
-    return collected
+    return await fetcher.fetch(source_payload)
 
 
-async def run_refresh(trigger_type: str = "manual") -> dict[str, Any]:
+async def run_refresh(db: Session, trigger_type: str = "manual", limit_per_source: int = 5) -> dict[str, Any]:
     started_at = datetime.utcnow().isoformat()
-    items = await collect_preview_items()
+    seed_sources(db)
+    sources = db.query(Source).filter(Source.enabled.is_(True)).all()
+
+    total_created = 0
+    errors: list[dict[str, str]] = []
+
+    for source in sources:
+        if source.type != "rss":
+            continue
+        try:
+            raw_items = await collect_source_items(source, limit_per_source=limit_per_source)
+            total_created += store_items(db, raw_items)
+        except Exception as exc:  # noqa: BLE001
+            errors.append({"source": source.name, "error": str(exc)})
+
+    message = f"刷新完成，新增 {total_created} 条记录"
+    if errors:
+        message += f"，失败源 {len(errors)} 个"
+
+    job = create_refresh_job(
+        db,
+        trigger_type=trigger_type,
+        status="success" if not errors else "partial_success",
+        message=message,
+        stats_payload={"created": total_created, "errors": errors},
+    )
+
     return {
+        "id": job.id,
         "trigger_type": trigger_type,
-        "status": "success",
+        "status": job.status,
         "started_at": started_at,
         "finished_at": datetime.utcnow().isoformat(),
-        "message": f"预览抓取完成，共处理 {len(items)} 条记录",
-        "items": items,
+        "message": message,
+        "count": total_created,
+        "errors": errors,
     }

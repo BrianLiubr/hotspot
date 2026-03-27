@@ -4,7 +4,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 class Settings(BaseSettings):
     app_name: str = "Hotspot Hub"
     app_env: str = "development"
-    database_url: str = "postgresql+psycopg2://postgres:postgres@db:5432/hotspot_hub"
+    database_url: str = "sqlite:///./hotspot.db"
     refresh_interval_minutes: int = 30
     request_timeout_seconds: int = 15
     max_items_per_source: int = 50

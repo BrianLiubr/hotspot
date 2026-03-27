@@ -1,23 +1,41 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
+from sqlalchemy.orm import Session
 
-from app.services.refresh.pipeline import collect_preview_items
+from app.db import get_db
+from app.services.queries import list_category_items, list_hot_items, list_latest_items
 
 router = APIRouter()
 
 
+def serialize(items):
+    return {
+        "items": [
+            {
+                "id": item.id,
+                "title": item.title,
+                "summary": item.summary,
+                "url": item.url,
+                "source": None,
+                "category": item.category,
+                "published_at": item.published_at.isoformat() if item.published_at else None,
+                "score": item.raw_score,
+                "related_count": 1,
+            }
+            for item in items
+        ]
+    }
+
+
 @router.get("/hot")
-async def hot_feed():
-    items = await collect_preview_items(limit_per_source=5)
-    return {"items": items[:20]}
+def hot_feed(db: Session = Depends(get_db)):
+    return serialize(list_hot_items(db))
 
 
 @router.get("/latest")
-async def latest_feed():
-    items = await collect_preview_items(limit_per_source=5)
-    return {"items": items[:20]}
+def latest_feed(db: Session = Depends(get_db)):
+    return serialize(list_latest_items(db))
 
 
 @router.get("/category/{category}")
-async def category_feed(category: str):
-    items = await collect_preview_items(limit_per_source=5)
-    return {"items": [item for item in items if item.get("category") == category][:20]}
+def category_feed(category: str, db: Session = Depends(get_db)):
+    return serialize(list_category_items(db, category))

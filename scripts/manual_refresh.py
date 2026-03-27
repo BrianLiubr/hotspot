@@ -1,7 +1,12 @@
 import asyncio
 
+from app.db import SessionLocal
 from app.services.refresh.pipeline import run_refresh
 
 
 if __name__ == "__main__":
-    print(asyncio.run(run_refresh(trigger_type="manual")))
+    db = SessionLocal()
+    try:
+        print(asyncio.run(run_refresh(db, trigger_type="manual")))
+    finally:
+        db.close()
