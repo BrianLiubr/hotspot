@@ -7,6 +7,9 @@ down:
 logs:
 	docker compose logs -f
 
+run:
+	. .venv/bin/activate && PYTHONPATH=. uvicorn app.main:app --reload
+
 init-db:
 	. .venv/bin/activate && PYTHONPATH=. python -m scripts.init_db
 
