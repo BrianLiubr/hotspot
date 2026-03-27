@@ -6,6 +6,7 @@ from typing import Any
 from sqlalchemy.orm import Session
 
 from app.models.source import Source
+from app.services.clustering import rebuild_clusters
 from app.services.fetchers.rss_fetcher import RSSFetcher
 from app.services.storage import create_refresh_job, seed_sources, store_items
 
@@ -33,11 +34,12 @@ async def run_refresh(db: Session, trigger_type: str = "manual", limit_per_sourc
             continue
         try:
             raw_items = await collect_source_items(source, limit_per_source=limit_per_source)
-            total_created += store_items(db, raw_items)
+            total_created += store_items(db, source, raw_items)
         except Exception as exc:  # noqa: BLE001
             errors.append({"source": source.name, "error": str(exc)})
 
-    message = f"刷新完成，新增 {total_created} 条记录"
+    cluster_count = rebuild_clusters(db)
+    message = f"刷新完成，新增 {total_created} 条记录，聚合 {cluster_count} 个事件"
     if errors:
         message += f"，失败源 {len(errors)} 个"
 
@@ -46,7 +48,7 @@ async def run_refresh(db: Session, trigger_type: str = "manual", limit_per_sourc
         trigger_type=trigger_type,
         status="success" if not errors else "partial_success",
         message=message,
-        stats_payload={"created": total_created, "errors": errors},
+        stats_payload={"created": total_created, "clusters": cluster_count, "errors": errors},
     )
 
     return {
@@ -57,5 +59,6 @@ async def run_refresh(db: Session, trigger_type: str = "manual", limit_per_sourc
         "finished_at": datetime.utcnow().isoformat(),
         "message": message,
         "count": total_created,
+        "clusters": cluster_count,
         "errors": errors,
     }

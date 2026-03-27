@@ -5,16 +5,27 @@
 <article class="card">
   <div class="meta">
     <span class="badge">{{ item.category }}</span>
-    <span>{{ item.source }}</span>
-    <span>{{ item.published_at }}</span>
+    <span>最近更新：{{ item.last_seen_at }}</span>
   </div>
-  <h2>{{ item.title }}</h2>
-  <p>{{ item.summary }}</p>
+  <h2>{{ item.canonical_title }}</h2>
+  <p>{{ item.canonical_summary }}</p>
   <div class="meta">
     <span>热度：{{ item.score }}</span>
     <span>相关报道：{{ item.related_count }}</span>
   </div>
 </article>
+
+<section class="card">
+  <h3>相关报道</h3>
+  <ul>
+    {% for rel in related_items %}
+    <li>
+      <a href="{{ rel.url }}" target="_blank">{{ rel.title }}</a>
+      {% if rel.source %} · {{ rel.source.name }}{% endif %}
+    </li>
+    {% endfor %}
+  </ul>
+</section>
 {% else %}
 <p>没有找到这个事件。</p>
 {% endif %}

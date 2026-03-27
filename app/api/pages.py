@@ -4,7 +4,8 @@ from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
 
 from app.db import get_db
-from app.services.queries import get_news_item, list_category_items, list_hot_items, list_latest_items, list_refresh_jobs
+from app.services.clustering import get_cluster_details
+from app.services.queries import list_category_event_clusters, list_latest_items, list_refresh_jobs, list_hot_event_clusters
 
 
 templates = Jinja2Templates(directory="app/templates")
@@ -13,7 +14,7 @@ router = APIRouter()
 
 @router.get("/", response_class=HTMLResponse)
 def index(request: Request, db: Session = Depends(get_db)):
-    items = list_hot_items(db)
+    items = list_hot_event_clusters(db)
     jobs = list_refresh_jobs(db, limit=1)
     last_refresh = jobs[0].finished_at.isoformat() if jobs and jobs[0].finished_at else "未刷新"
     return templates.TemplateResponse(
@@ -35,7 +36,7 @@ def latest(request: Request, db: Session = Depends(get_db)):
 
 @router.get("/category/{category}", response_class=HTMLResponse)
 def category(request: Request, category: str, db: Session = Depends(get_db)):
-    items = list_category_items(db, category)
+    items = list_category_event_clusters(db, category)
     return templates.TemplateResponse(
         request,
         "category.html",
@@ -45,11 +46,11 @@ def category(request: Request, category: str, db: Session = Depends(get_db)):
 
 @router.get("/events/{event_id}", response_class=HTMLResponse)
 def event_detail(request: Request, event_id: int, db: Session = Depends(get_db)):
-    item = get_news_item(db, event_id)
+    data = get_cluster_details(db, event_id)
     return templates.TemplateResponse(
         request,
         "event_detail.html",
-        {"item": item, "page_title": f"事件详情 #{event_id}"},
+        {"item": data["cluster"] if data else None, "related_items": data["items"] if data else [], "page_title": f"事件详情 #{event_id}"},
     )
 
 

@@ -37,7 +37,7 @@ def seed_sources(db: Session) -> int:
     return created
 
 
-def store_items(db: Session, raw_items: list[dict[str, Any]]) -> int:
+def store_items(db: Session, source: Source, raw_items: list[dict[str, Any]]) -> int:
     created = 0
     for raw_item in raw_items:
         normalized = normalize_item(raw_item)
@@ -50,13 +50,14 @@ def store_items(db: Session, raw_items: list[dict[str, Any]]) -> int:
         score = sum(scores.values()) + 1
         db.add(
             NewsItem(
+                source_id=source.id,
                 title=normalized["title"],
                 normalized_title=normalized.get("normalized_title"),
                 summary=normalized.get("summary"),
                 url=normalized["url"],
                 author=normalized.get("author"),
                 published_at=parse_datetime(normalized.get("published_at")),
-                category=category,
+                category=category or source.category_default,
                 language=normalized.get("language", "zh"),
                 content_hash=normalized.get("content_hash"),
                 raw_score=str(score),
