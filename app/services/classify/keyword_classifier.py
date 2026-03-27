@@ -1,6 +1,6 @@
-AI_KEYWORDS = ["ai", "大模型", "agent", "openai", "anthropic", "gemini", "claude", "芯片", "英伟达"]
-FINANCE_KEYWORDS = ["a股", "港股", "美股", "财报", "降息", "通胀", "央行", "黄金", "原油", "汇率"]
-SOCIETY_KEYWORDS = ["通报", "警方", "法院", "教育", "医疗", "事故", "地震", "消防", "民生", "政策"]
+AI_KEYWORDS = ["ai", "大模型", "agent", "openai", "anthropic", "gemini", "claude", "芯片", "英伟达", "人工智能", "模型", "算力"]
+FINANCE_KEYWORDS = ["a股", "港股", "美股", "财报", "降息", "通胀", "央行", "黄金", "原油", "汇率", "ipo", "基金", "债券"]
+SOCIETY_KEYWORDS = ["通报", "警方", "法院", "教育", "医疗", "事故", "地震", "消防", "民生", "政策", "学校", "医院", "救援"]
 
 
 CATEGORY_KEYWORDS = {

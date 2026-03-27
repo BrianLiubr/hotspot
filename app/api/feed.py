@@ -78,6 +78,7 @@ def event_feed(cluster_id: int, db: Session = Depends(get_db)):
                     "title": item.title,
                     "url": item.url,
                     "source": item.source.name if item.source else None,
+                    "published_at": item.published_at.isoformat() if item.published_at else None,
                 }
                 for item in data["items"]
             ],
