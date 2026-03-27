@@ -49,6 +49,7 @@ async def run_refresh(db: Session, trigger_type: str = "manual", limit_per_sourc
         status="success" if not errors else "partial_success",
         message=message,
         stats_payload={"created": total_created, "clusters": cluster_count, "errors": errors},
+        error_count=len(errors),
     )
 
     return {

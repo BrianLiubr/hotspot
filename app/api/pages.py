@@ -4,8 +4,9 @@ from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
 
 from app.db import get_db
+from app.config import settings
 from app.services.clustering import get_cluster_details
-from app.services.queries import list_category_event_clusters, list_latest_items, list_refresh_jobs, list_hot_event_clusters
+from app.services.queries import list_category_event_clusters, list_latest_items, list_refresh_jobs, list_hot_event_clusters, list_sources
 
 
 templates = Jinja2Templates(directory="app/templates")
@@ -57,8 +58,14 @@ def event_detail(request: Request, event_id: int, db: Session = Depends(get_db))
 @router.get("/admin", response_class=HTMLResponse)
 def admin_page(request: Request, db: Session = Depends(get_db)):
     jobs = list_refresh_jobs(db)
+    sources = list_sources(db)
     return templates.TemplateResponse(
         request,
         "admin.html",
-        {"jobs": jobs, "page_title": "管理后台"},
+        {
+            "jobs": jobs,
+            "page_title": "管理后台",
+            "refresh_interval_minutes": settings.refresh_interval_minutes,
+            "source_count": len(sources),
+        },
     )

@@ -69,7 +69,14 @@ def store_items(db: Session, source: Source, raw_items: list[dict[str, Any]]) ->
     return created
 
 
-def create_refresh_job(db: Session, trigger_type: str, status: str, message: str, stats_payload: dict | None = None) -> RefreshJob:
+def create_refresh_job(
+    db: Session,
+    trigger_type: str,
+    status: str,
+    message: str,
+    stats_payload: dict | None = None,
+    error_count: int = 0,
+) -> RefreshJob:
     job = RefreshJob(
         trigger_type=trigger_type,
         status=status,
@@ -77,6 +84,7 @@ def create_refresh_job(db: Session, trigger_type: str, status: str, message: str
         finished_at=datetime.utcnow(),
         message=message,
         stats_payload=stats_payload,
+        error_count=error_count,
     )
     db.add(job)
     db.commit()

@@ -16,5 +16,6 @@ class RefreshJob(Base):
     finished_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
     message: Mapped[str | None] = mapped_column(Text, nullable=True)
     stats_payload: Mapped[dict | None] = mapped_column(JSON, nullable=True)
+    error_count: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, nullable=False)
     updated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)

@@ -10,10 +10,29 @@
 </section>
 
 <section class="card">
+  <h3>调度状态</h3>
+  <p>自动刷新间隔：每 {{ refresh_interval_minutes }} 分钟</p>
+  <p>当前已启用数据源：{{ source_count }}</p>
+</section>
+
+<section class="card">
   <h3>最近任务</h3>
   <ul>
     {% for job in jobs %}
-    <li>#{{ job.id }} · {{ job.trigger_type }} · {{ job.status }} · {{ job.message }}</li>
+    <li>
+      <strong>#{{ job.id }}</strong> · {{ job.trigger_type }} · {{ job.status }} · 错误数：{{ job.error_count }}<br />
+      {{ job.message }}
+      {% if job.stats_payload and job.stats_payload.errors %}
+      <details>
+        <summary>查看失败源</summary>
+        <ul>
+          {% for err in job.stats_payload.errors %}
+          <li>{{ err.source }}：{{ err.error }}</li>
+          {% endfor %}
+        </ul>
+      </details>
+      {% endif %}
+    </li>
     {% endfor %}
   </ul>
 </section>

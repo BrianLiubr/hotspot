@@ -21,6 +21,8 @@ def jobs(db: Session = Depends(get_db)):
                 "started_at": item.started_at.isoformat() if item.started_at else None,
                 "finished_at": item.finished_at.isoformat() if item.finished_at else None,
                 "message": item.message,
+                "error_count": item.error_count,
+                "stats": item.stats_payload or {},
             }
             for item in items
         ]

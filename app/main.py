@@ -5,11 +5,16 @@ from fastapi.staticfiles import StaticFiles
 
 from app.api import admin, events, feed, pages
 from app.config import settings
+from app.scheduler import start_scheduler, stop_scheduler
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    yield
+    start_scheduler()
+    try:
+        yield
+    finally:
+        stop_scheduler()
 
 
 app = FastAPI(title=settings.app_name, lifespan=lifespan)
