@@ -170,7 +170,33 @@ PYTHONPATH=. pytest tests
 
 ---
 
-## 10. 当前状态
+## 10. Docker 部署
+
+已提供：
+- `Dockerfile`
+- `docker-compose.yml`
+- `.env.docker.example`
+- `entrypoint.sh`
+- `docs/DEPLOYMENT.md`
+
+快速启动：
+
+```bash
+cp .env.docker.example .env.docker
+docker compose up --build
+```
+
+容器会自动：
+- 等待 PostgreSQL
+- 初始化数据库
+- 首次抓取数据
+- 启动 Web 服务
+
+Docker Compose 使用 `sh /app/entrypoint.sh`，避免本地挂载目录时脚本权限问题。
+
+---
+
+## 11. 当前状态
 
 当前仓库已经是：
-**可本地运行、可抓真实数据、可自动刷新的热点平台 MVP 原型。**
+**可本地运行、可 Docker 部署、可抓真实数据、可自动刷新的热点平台 MVP 原型。**

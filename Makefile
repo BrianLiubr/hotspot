@@ -1,4 +1,7 @@
-up:
+docker-env:
+	cp -n .env.docker.example .env.docker || true
+
+up: docker-env
 	docker compose up --build
 
 down:
